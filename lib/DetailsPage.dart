@@ -46,7 +46,7 @@ class _DetailsPageState extends State<DetailsPage> {
     shrinkWrap: true,
                               physics: NeverScrollableScrollPhysics(),
               itemCount: this.widget.service.desc.length,
-              itemExtent: 40,
+              // itemExtent: 50,
               itemBuilder: (BuildContext context, int index){
                 return ListTile(
                   leading: Icon(
@@ -218,7 +218,7 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
                               height: 135,
                               width: 165,
                               child: Hero(
-                                tag: 'heroService',
+                                tag: 'service${service.title}',
                                                               child: new Card(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.all(

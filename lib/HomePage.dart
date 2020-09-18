@@ -46,9 +46,23 @@ class _HomePageState extends State<HomePage> {
   }
 
 
-  Future<List<Services>> _getServices() async {
-    final jobsListAPIUrl = 'https://wedo-api.technationme.com/api/categories';
-    final response = await http.get(jobsListAPIUrl);
+  Future<List<Services>> _getServices([String _cityId]) async {
+    final servicesURL = 'https://wedo-api.technationme.com/api/categories';
+//     var finalurl;
+// if (_cityId == null) {
+//   print('City id is: $_cityId');
+//   finalurl = servicesURL;
+// } else {
+//     print('City id is: $_cityId');
+//   var queryParameters = {
+//   'cityId': _cityId.toString(),
+// };
+//   finalurl = Uri.https('https://wedo-api.technationme.com', '/api/categories', queryParameters);
+// }
+
+
+
+    final response = await http.get(servicesURL);
 
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
@@ -173,7 +187,7 @@ class _HomePageState extends State<HomePage> {
     
     Widget _servicesGrid() {
       return FutureBuilder(
-                  future: _getServices(),
+                  future: _getServices(_selectedCity),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       List<Services> allServices = snapshot.data;
@@ -189,42 +203,68 @@ class _HomePageState extends State<HomePage> {
                             mainAxisSpacing: 6.0
                             ),
                         itemBuilder: (BuildContext context, int index) {
-                          return InkWell(
-                            onTap: (){
-                              Navigator.push(context, MaterialPageRoute(
-                                builder: (context) => DetailsPage(allServices[index])
-                                ));
-                            },
-                            // height: 135,
-                            // width: 165,
-                            child: new Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(10.0)
+                          return Hero(
+                            tag: 'service${allServices[index].title}',
+                                                      child: GestureDetector(
+                              onTap: (){
+                                // Navigator.push(context, MaterialPageRoute(
+                                //   builder: (context) => DetailsPage(allServices[index])
+                                //   ));
+                                Navigator.of(context).push(
+  PageRouteBuilder(
+    transitionDuration: Duration(milliseconds: 600),
+    pageBuilder: (
+        BuildContext context,
+        Animation<double> animation,
+        Animation<double> secondaryAnimation) {
+      return DetailsPage(allServices[index]);
+    },
+    transitionsBuilder: (
+        BuildContext context,
+        Animation<double> animation,
+        Animation<double> secondaryAnimation,
+        Widget child) {
+      return Align(
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+      );
+    },
+  ),
+);
+                              },
+                              // height: 135,
+                              // width: 165,
+                              child: new Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(10.0)
+                                  ),
                                 ),
-                              ),
-                              elevation: 6.0,
-                              shadowColor: Color(0xff54545473),
-                            color: Color(0xffFFFFFF),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image.network(
-                                      'https://wedo-api.technationme.com${allServices[index].imagelink}',
-                                      height: 60,
-                                      width: 50,
-                                      ),
-                                                               // Text(allServices[index].imagelink),
-                                   Text(
-                                     allServices[index].title,
-                                     style: TextStyle(
-                                       fontSize: 16.0,
-                                                             fontWeight: FontWeight.w500,
-                                       color: Color(0xff757575)
+                                elevation: 6.0,
+                                shadowColor: Color(0xff54545473),
+                              color: Color(0xffFFFFFF),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.network(
+                                        'https://wedo-api.technationme.com${allServices[index].imagelink}',
+                                        height: 60,
+                                        width: 50,
+                                        ),
+                                                                 // Text(allServices[index].imagelink),
+                                     Text(
+                                       allServices[index].title,
+                                       style: TextStyle(
+                                         fontSize: 16.0,
+                                                               fontWeight: FontWeight.w500,
+                                         color: Color(0xff757575)
+                                       ),
                                      ),
-                                   ),
-                                  ],
-                                ),
+                                    ],
+                                  ),
+                              ),
                             ),
                           );
                         },
@@ -407,7 +447,7 @@ Widget _searchBox(context) {
                     Container(
                       margin: EdgeInsets.only(top: 5.0),
                       width: MediaQuery.of(context).size.width*.6,
-                      child: Text('Can\'t Find What You Are Looking For?',
+                      child: Text('Search Our Service',
                       textAlign: TextAlign.left,
                       style: TextStyle(
                         color: Color(0xffBFC2D0),
@@ -423,7 +463,7 @@ Widget _searchBox(context) {
                         //autofocus: true,
                         decoration: InputDecoration(
                           border: InputBorder.none,
-                          hintText: 'submit your request',
+                          hintText: 'type your request',
                           hintStyle: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontStyle: FontStyle.italic,
